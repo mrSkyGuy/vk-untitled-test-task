@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Panel, PanelHeader } from "@vkontakte/vkui";
-import { Tabs } from "@widgets/Tabs";
+import { Tabs, CatFact } from "@widgets";
 
 type THomeProps = {
   id: string;
@@ -13,6 +13,7 @@ export function Home({ id }: THomeProps) {
     <Panel id={id}>
       <PanelHeader>Home Page</PanelHeader>
       <Tabs selected={selected} setSelected={setSelected} />
+      {selected === "cat-facts" && <CatFact />}
     </Panel>
   );
 }

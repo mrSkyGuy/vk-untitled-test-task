@@ -13,6 +13,7 @@
     "deploy": "npm run build && gh-pages -d build"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.28.4",
     "@vkontakte/vkui": "^6.0.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"

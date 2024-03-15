@@ -4,6 +4,16 @@
     "useDefineForClassFields": true,
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "ESNext",
+    "baseUrl": "./src",
+    "paths": {
+      "@app": ["./app/"],
+      "@processes/*": ["./processes/*"],
+      "@pages/*": ["./pages/*"],
+      "@widgets/*": ["./widgets/*"],
+      "@features/*": ["./features/*"],
+      "@entities/*": ["./entities/*"],
+      "@shared/*": ["./shared/*"]
+    },
     "skipLibCheck": true,
 
     /* Bundler mode */

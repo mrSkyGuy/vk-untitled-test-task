@@ -13,6 +13,13 @@ module.exports = {
   plugins: ["react-refresh"],
   rules: {
     "import/no-default-export": "warn",
-    "@typescript-eslint/no-non-null-assertion": "off"
+    "@typescript-eslint/no-non-null-assertion": "off",
+    "prettier/prettier": [
+      "error",
+      {
+        endOfLine: "auto"
+      }
+    ],
+    "import/no-unresolved": "off"
   }
 };

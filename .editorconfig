@@ -1,0 +1,35 @@
+root = true
+
+[*]
+indent_style = space
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+spaces_around_operators = false
+
+[*.js]
+indent_size = 4
+
+[*.{js,jsx,ts,tsx}]
+curly_bracket_next_line = false
+indent_brace_style = K&R
+
+[*.{jsx,htm?,json,tsx}]
+indent_style = space
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false
+
+[*.{scss,css}]
+indent_size = 2
+indent_style = tab
+
+[**/node_modules/**]
+charset = unset
+end_of_line = unset
+insert_final_newline = unset
+trim_trailing_whitespace = unset
+indent_style = unset
+indent_size = unset
+spaces_around_operators = unset

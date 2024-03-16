@@ -1,11 +1,12 @@
-import { Button, FormItem, Group, Input, Spinner } from "@vkontakte/vkui";
+import { Button, FormItem, Group, Spinner, Textarea } from "@vkontakte/vkui";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
+import styles from "./index.module.css";
 
 export function CatFact() {
   const [catFact, setCatFact] = useState("");
   const [loading, setLoading] = useState(false);
   const [updatedByRequest, setUpdatedByRequest] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     if (inputRef.current && updatedByRequest && catFact) {
@@ -25,21 +26,28 @@ export function CatFact() {
     setCatFact(fact);
   }
 
-  function handleChange(e: ChangeEvent<HTMLInputElement>) {
+  function handleChange(e: ChangeEvent<HTMLTextAreaElement>) {
     setCatFact(e.currentTarget.value);
     setUpdatedByRequest(false);
   }
 
   return (
-    <Group style={{ display: "flex", gap: "8px", padding: "24px 16px", marginTop: "8px" }}>
-      <FormItem htmlFor="input" style={{ flex: "1" }} noPadding>
-        <Input getRef={inputRef} id="input" value={catFact} onChange={handleChange} />
+    <Group className={styles.group}>
+      <FormItem htmlFor="input" className={styles.inputWrapper} noPadding>
+        <Textarea
+          className={styles.textArea}
+          getRef={inputRef}
+          id="input"
+          value={catFact}
+          onChange={handleChange}
+          placeholder="press on green button..."
+        />
       </FormItem>
       <Button
-        appearance="positive"
-        style={{ flex: "0" }}
         disabled={loading}
         onClick={handleButtonClick}
+        appearance="positive"
+        className={styles.button}
       >
         {!loading && "Get fact"}
         {loading && <Spinner size="small" />}

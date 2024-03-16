@@ -1,0 +1,33 @@
+@media screen and (max-width: 420px) {
+	.group {
+		flex-direction: column;
+	}
+
+	.button {
+		align-self: flex-end !important;
+	}
+}
+
+.group {
+	display: flex;
+	gap: 8px;
+	padding: 24px 16px !important;
+	margin-top: 8px
+}
+
+.inputWrapper {
+	flex: 1;
+}
+
+.textArea {
+	max-height: 40vh;
+}
+
+.button {
+	flex: 0;
+	align-self: flex-start;
+
+	span {
+		text-overflow: clip;
+	}
+}

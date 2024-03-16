@@ -15,7 +15,7 @@ module.exports = {
     "import/no-default-export": "warn",
     "@typescript-eslint/no-non-null-assertion": "off",
     "prettier/prettier": [
-      "error",
+      "warn",
       {
         endOfLine: "auto"
       }

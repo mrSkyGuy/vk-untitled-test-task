@@ -4,14 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import { RefCallBack, UseFormRegisterReturn, useForm } from "react-hook-form";
 import * as yup from "yup";
 import styles from "./index.module.css";
+import { ageByNameApiClient } from "@shared/api";
 
 type TFormInput = {
   name: string;
-};
-
-type TResponse = {
-  age: number;
-  count: number;
 };
 
 const schema = yup.object().shape({
@@ -67,9 +63,7 @@ export function AgeByName() {
     const { signal } = controller.current;
 
     try {
-      const { age } = await fetch(`https://api.agify.io/?name=${name}`, { signal }).then(
-        (r) => r.json() as Promise<TResponse>
-      );
+      const { age } = await ageByNameApiClient.getAge(name, signal);
 
       setAge(age);
       setError(null);

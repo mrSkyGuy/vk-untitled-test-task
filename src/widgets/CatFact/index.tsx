@@ -1,6 +1,7 @@
 import { Button, FormItem, Group, Spinner, Textarea } from "@vkontakte/vkui";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import styles from "./index.module.css";
+import { catFactApiClient } from "@shared/api";
 
 export function CatFact() {
   const [catFact, setCatFact] = useState("");
@@ -22,7 +23,7 @@ export function CatFact() {
   async function handleButtonClick() {
     setLoading(true);
     try {
-      const { fact } = await fetch("https://catfact.ninja/fact").then((r) => r.json());
+      const { fact } = await catFactApiClient.getFact();
       updatedByRequest.current = true;
       setCatFact(fact);
       setError(null);

@@ -3,8 +3,6 @@ import { Button, FormItem, Group, Input, Spinner } from "@vkontakte/vkui";
 import { useEffect, useRef, useState } from "react";
 import { RefCallBack, UseFormRegisterReturn, useForm } from "react-hook-form";
 import * as yup from "yup";
-// eslint-disable-next-line import/named
-import axios, { CancelTokenSource } from "axios";
 import styles from "./index.module.css";
 
 type TFormInput = {
@@ -33,11 +31,11 @@ export function AgeByName() {
     formState: { errors }
   } = useForm<TFormInput>({ resolver: yupResolver(schema) });
   const [age, setAge] = useState<null | undefined | number>();
-  const [requestedName, setRequestedName] = useState("");
   const [loading, setLoading] = useState(false);
-  const [cancelTokenSource, setCancelTokenSource] = useState<CancelTokenSource | null>(null);
   const [error, setError] = useState<null | string>(null);
+  const requestedName = useRef("");
   const timeoutG = useRef<number | null>(null);
+  const controller = useRef<AbortController | null>();
 
   const name = watch("name");
   useEffect(() => {
@@ -58,32 +56,31 @@ export function AgeByName() {
       clearTimeout(timeoutG.current);
     }
 
-    if (!name || requestedName === name) return;
-    setRequestedName(name);
+    if (!name || requestedName.current === name) return;
+    requestedName.current = name;
     setLoading(true);
 
-    if (cancelTokenSource) {
-      cancelTokenSource.cancel("Request canceled");
+    if (controller.current && !controller.current.signal.aborted) {
+      controller.current.abort("Outdated request");
     }
+    controller.current = new AbortController();
+    const { signal } = controller.current;
 
-    try {
-      // eslint-disable-next-line import/no-named-as-default-member
-      const newCancelTokenSource = axios.CancelToken.source();
-      const respAge = await axios
-        .get<TResponse>(`https://api.agify.io/?name=${name}`, {
-          cancelToken: newCancelTokenSource.token
-        })
-        .then(({ data }) => data.age);
-
-      setCancelTokenSource(newCancelTokenSource);
-      setAge(respAge);
-    } catch (error) {
-      // eslint-disable-next-line import/no-named-as-default-member
-      if (!axios.isCancel(error)) {
-        setError(`${error}`);
-      }
-    }
-    setLoading(false);
+    await fetch(`https://api.agify.io/?name=${name}`, { signal })
+      .then((r) => r.json() as Promise<TResponse>)
+      .then(({ age }) => {
+        setAge(age);
+        setError(null);
+        setLoading(false);
+      })
+      .catch((error) => {
+        if (signal.reason === "Outdated request") {
+          setError(null);
+        } else {
+          setError(String(error));
+          setLoading(false);
+        }
+      });
   }
 
   function getValidAttributesForVKComponents<T extends string>(
@@ -96,7 +93,7 @@ export function AgeByName() {
     };
   }
 
-  function resultOutput() {
+  function getOutputResult() {
     if (error) {
       return <span className={styles.errorMessage}>{error}</span>;
     }
@@ -138,7 +135,7 @@ export function AgeByName() {
         </FormItem>
 
         <div className={styles.bottomRow}>
-          <div className={styles.result}>{resultOutput()}</div>
+          <div className={styles.result}>{getOutputResult()}</div>
 
           <Button
             type="submit"

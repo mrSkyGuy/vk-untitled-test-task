@@ -16,7 +16,6 @@
     "@hookform/resolvers": "^3.3.4",
     "@tanstack/react-query": "^5.28.4",
     "@vkontakte/vkui": "^6.0.1",
-    "axios": "^1.6.8",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.51.0",

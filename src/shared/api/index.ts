@@ -28,7 +28,12 @@ class ApiClient {
 type TCatFactGetResponse = {
   fact: string;
 };
+
 class CatFactApiClient extends ApiClient {
+  constructor() {
+    super("https://catfact.ninja/fact");
+  }
+
   async getFact(): Promise<TCatFactGetResponse> {
     return (await super.get()) as TCatFactGetResponse;
   }
@@ -37,11 +42,16 @@ class CatFactApiClient extends ApiClient {
 type TAgeByNameResponse = {
   age: number | null;
 };
+
 class AgeByNameApiClient extends ApiClient {
+  constructor() {
+    super("https://api.agify.io");
+  }
+
   async getAge(name: string, abortSignal: AbortSignal): Promise<TAgeByNameResponse> {
     return (await super.get({ name }, abortSignal)) as TAgeByNameResponse;
   }
 }
 
-export const catFactApiClient = new CatFactApiClient("https://catfact.ninja/fact");
-export const ageByNameApiClient = new AgeByNameApiClient("https://api.agify.io");
+export const catFactApiClient = new CatFactApiClient();
+export const ageByNameApiClient = new AgeByNameApiClient();

@@ -6,6 +6,8 @@
 
 .errorMessage {
 	color: rgba(255, 0, 0, 0.75);
+	font-size: 13px;
+	font-style: italic;
 }
 
 .inputWrapper {

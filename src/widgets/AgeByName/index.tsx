@@ -66,21 +66,22 @@ export function AgeByName() {
     controller.current = new AbortController();
     const { signal } = controller.current;
 
-    await fetch(`https://api.agify.io/?name=${name}`, { signal })
-      .then((r) => r.json() as Promise<TResponse>)
-      .then(({ age }) => {
-        setAge(age);
+    try {
+      const { age } = await fetch(`https://api.agify.io/?name=${name}`, { signal }).then(
+        (r) => r.json() as Promise<TResponse>
+      );
+
+      setAge(age);
+      setError(null);
+      setLoading(false);
+    } catch {
+      if (signal.reason === "Outdated request") {
         setError(null);
+      } else {
+        setError("An error has occurred. Please try again later");
         setLoading(false);
-      })
-      .catch((error) => {
-        if (signal.reason === "Outdated request") {
-          setError(null);
-        } else {
-          setError(String(error));
-          setLoading(false);
-        }
-      });
+      }
+    }
   }
 
   function getValidAttributesForVKComponents<T extends string>(
@@ -116,7 +117,6 @@ export function AgeByName() {
     <Group style={{ padding: "24px 16px", marginTop: "8px" }}>
       <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
         <FormItem
-          top="Name"
           bottom={
             errors.name ? (
               <span className={styles.errorMessage}>{errors.name.message}</span>
@@ -130,7 +130,7 @@ export function AgeByName() {
           <Input
             {...getValidAttributesForVKComponents(register("name"))}
             className={errors.name ? styles.inputValidationError : ""}
-            placeholder="type here..."
+            placeholder="type name..."
           />
         </FormItem>
 

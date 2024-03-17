@@ -5,35 +5,46 @@ import styles from "./index.module.css";
 export function CatFact() {
   const [catFact, setCatFact] = useState("");
   const [loading, setLoading] = useState(false);
-  const [updatedByRequest, setUpdatedByRequest] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const updatedByRequest = useRef(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    if (inputRef.current && updatedByRequest && catFact) {
+    if (inputRef.current && updatedByRequest.current && catFact) {
       const firstSpace = catFact.indexOf(" ");
       const position = firstSpace === -1 ? catFact.length : firstSpace;
       inputRef.current.setSelectionRange(position, position);
       inputRef.current.focus();
-      setUpdatedByRequest(false);
+      updatedByRequest.current = false;
     }
   }, [updatedByRequest, catFact]);
 
   async function handleButtonClick() {
     setLoading(true);
-    const { fact } = await fetch("https://catfact.ninja/fact").then((resp) => resp.json());
+    try {
+      const { fact } = await fetch("https://catfact.ninja/fact").then((r) => r.json());
+      updatedByRequest.current = true;
+      setCatFact(fact);
+      setError(null);
+    } catch (error) {
+      setError("An error has occurred. Please try again later");
+    }
     setLoading(false);
-    setUpdatedByRequest(true);
-    setCatFact(fact);
   }
 
   function handleChange(e: ChangeEvent<HTMLTextAreaElement>) {
     setCatFact(e.currentTarget.value);
-    setUpdatedByRequest(false);
+    updatedByRequest.current = false;
   }
 
   return (
     <Group className={styles.group}>
-      <FormItem htmlFor="input" className={styles.inputWrapper} noPadding>
+      <FormItem
+        bottom={error ? <span className={styles.errorMessage}>{error}</span> : "Fancy cat facts"}
+        htmlFor="input"
+        className={styles.inputWrapper}
+        noPadding
+      >
         <Textarea
           className={styles.textArea}
           getRef={inputRef}

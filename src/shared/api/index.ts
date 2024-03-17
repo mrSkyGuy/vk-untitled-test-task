@@ -21,6 +21,9 @@ class ApiClient {
       queryParams ? this.concatURLWithParams(queryParams) : this.baseUrl,
       { signal: abortSignal }
     );
+    if (!response.ok) {
+      throw new Error("Something gone wrong");
+    }
     return await response.json();
   }
 }

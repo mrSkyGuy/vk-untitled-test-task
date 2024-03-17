@@ -2,14 +2,23 @@ import { Button, FormItem, Group, Spinner, Textarea } from "@vkontakte/vkui";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import styles from "./index.module.css";
 import { catFactApiClient } from "@shared/api";
+import { useQuery } from "@tanstack/react-query";
 
 export function CatFact() {
   const [catFact, setCatFact] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<maybeNullish<string>>(null);
-
   const updatedByRequest = useRef(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  const { isFetching, isError, refetch } = useQuery({
+    queryKey: ["cat-fact"],
+    queryFn: async () => {
+      const response = await catFactApiClient.getFact();
+      updatedByRequest.current = true;
+      setCatFact(response.fact);
+      return response;
+    },
+    enabled: false
+  });
 
   useEffect(() => {
     if (inputRef.current && updatedByRequest.current && catFact) {
@@ -19,20 +28,7 @@ export function CatFact() {
       inputRef.current.focus();
       updatedByRequest.current = false;
     }
-  }, [updatedByRequest, catFact]);
-
-  async function handleButtonClick() {
-    setLoading(true);
-    try {
-      const { fact } = await catFactApiClient.getFact();
-      updatedByRequest.current = true;
-      setCatFact(fact);
-      setError(null);
-    } catch (error) {
-      setError("An error has occurred. Please try again later");
-    }
-    setLoading(false);
-  }
+  }, [catFact]);
 
   function handleChange(e: ChangeEvent<HTMLTextAreaElement>) {
     setCatFact(e.currentTarget.value);
@@ -42,7 +38,15 @@ export function CatFact() {
   return (
     <Group className={styles.group}>
       <FormItem
-        bottom={error ? <span className={styles.errorMessage}>{error}</span> : "Fancy cat facts"}
+        bottom={
+          isError ? (
+            <span className={styles.errorMessage}>
+              An error has occurred. Please try again later
+            </span>
+          ) : (
+            "Fancy cat facts"
+          )
+        }
         htmlFor="input"
         className={styles.inputWrapper}
         noPadding
@@ -57,13 +61,13 @@ export function CatFact() {
         />
       </FormItem>
       <Button
-        disabled={loading}
-        onClick={handleButtonClick}
+        disabled={isFetching}
+        onClick={() => refetch()}
         appearance="positive"
         className={styles.button}
       >
-        {!loading && "Get fact"}
-        {loading && <Spinner size="small" />}
+        {!isFetching && "Get fact"}
+        {isFetching && <Spinner size="small" />}
       </Button>
     </Group>
   );

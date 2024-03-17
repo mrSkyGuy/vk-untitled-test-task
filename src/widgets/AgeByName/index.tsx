@@ -1,8 +1,10 @@
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Button, FormItem, Group, Input, Spinner } from "@vkontakte/vkui";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useEffect, useCallback } from "react";
 import { RefCallBack, UseFormRegisterReturn, useForm } from "react-hook-form";
 import * as yup from "yup";
+import { useQuery } from "@tanstack/react-query";
+
 import styles from "./index.module.css";
 import { ageByNameApiClient } from "@shared/api";
 
@@ -26,16 +28,33 @@ export function AgeByName() {
     watch,
     formState: { errors }
   } = useForm<TFormInput>({ resolver: yupResolver(schema) });
+  const name = watch("name");
 
-  const [age, setAge] = useState<maybeNullish<number>>();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<maybeNullish<string>>(null);
-
-  const requestedName = useRef("");
   const timeoutG = useRef<maybeNullish<number>>(null);
   const controller = useRef<maybeNullish<AbortController>>(null);
 
-  const name = watch("name");
+  const { data, isFetching, isError, refetch, error } = useQuery({
+    queryKey: ["cat-fact", name],
+    queryFn: async () => {
+      if (controller.current) {
+        controller.current.abort("Outdated request");
+      }
+      controller.current = new AbortController();
+      const { signal } = controller.current;
+      const response = await ageByNameApiClient.getAge(name, signal);
+      return response;
+    },
+    enabled: false
+  });
+
+  const onSubmit = useCallback(async () => {
+    if (data) return;
+    if (timeoutG.current) {
+      clearTimeout(timeoutG.current);
+    }
+    refetch();
+  }, [refetch, data]);
+
   useEffect(() => {
     if (!name) return;
 
@@ -46,39 +65,7 @@ export function AgeByName() {
     timeoutG.current = timeout;
 
     return () => clearTimeout(timeout);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [name, handleSubmit]);
-
-  async function onSubmit() {
-    if (timeoutG.current) {
-      clearTimeout(timeoutG.current);
-    }
-
-    if (!name || requestedName.current === name) return;
-    requestedName.current = name;
-    setLoading(true);
-
-    if (controller.current && !controller.current.signal.aborted) {
-      controller.current.abort("Outdated request");
-    }
-    controller.current = new AbortController();
-    const { signal } = controller.current;
-
-    try {
-      const { age } = await ageByNameApiClient.getAge(name, signal);
-
-      setAge(age);
-      setError(null);
-      setLoading(false);
-    } catch {
-      if (signal.reason === "Outdated request") {
-        setError(null);
-      } else {
-        setError("An error has occurred. Please try again later");
-        setLoading(false);
-      }
-    }
-  }
+  }, [name, handleSubmit, onSubmit]);
 
   function getValidAttributesForVKComponents<T extends string>(
     reg: UseFormRegisterReturn<T>
@@ -91,20 +78,22 @@ export function AgeByName() {
   }
 
   function getOutputResult() {
-    if (error) {
-      return <span className={styles.errorMessage}>{error}</span>;
+    if (isError && !(error instanceof DOMException && error.name === "AbortError")) {
+      return (
+        <span className={styles.errorMessage}>An error has occurred. Please try again later</span>
+      );
     }
 
-    if (loading) {
+    if (isFetching) {
       return <Spinner className={styles.spinner} size="regular" />;
     } else {
-      switch (age) {
+      switch (data?.age) {
         case null:
           return <span>I don't know this name :(</span>;
         case undefined:
           return <span></span>;
         default:
-          return <span>{age}</span>;
+          return <span>{data!.age}</span>;
       }
     }
   }

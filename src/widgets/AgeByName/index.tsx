@@ -26,12 +26,14 @@ export function AgeByName() {
     watch,
     formState: { errors }
   } = useForm<TFormInput>({ resolver: yupResolver(schema) });
-  const [age, setAge] = useState<null | undefined | number>();
+
+  const [age, setAge] = useState<maybeNullish<number>>();
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<null | string>(null);
+  const [error, setError] = useState<maybeNullish<string>>(null);
+
   const requestedName = useRef("");
-  const timeoutG = useRef<number | null>(null);
-  const controller = useRef<AbortController | null>();
+  const timeoutG = useRef<maybeNullish<number>>(null);
+  const controller = useRef<maybeNullish<AbortController>>(null);
 
   const name = watch("name");
   useEffect(() => {

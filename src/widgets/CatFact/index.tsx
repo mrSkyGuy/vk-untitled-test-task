@@ -6,7 +6,8 @@ import { catFactApiClient } from "@shared/api";
 export function CatFact() {
   const [catFact, setCatFact] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<maybeNullish<string>>(null);
+
   const updatedByRequest = useRef(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 

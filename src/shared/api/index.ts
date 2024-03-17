@@ -28,10 +28,6 @@ class ApiClient {
   }
 }
 
-type TCatFactGetResponse = {
-  fact: string;
-};
-
 class CatFactApiClient extends ApiClient {
   constructor() {
     super("https://catfact.ninja/fact");
@@ -41,10 +37,6 @@ class CatFactApiClient extends ApiClient {
     return (await super.get()) as TCatFactGetResponse;
   }
 }
-
-type TAgeByNameResponse = {
-  age: number | null;
-};
 
 class AgeByNameApiClient extends ApiClient {
   constructor() {

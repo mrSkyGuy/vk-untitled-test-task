@@ -1,0 +1,1 @@
+export { getValidAttributesForVKComponents } from "./validAttributesForVKComponents";
